@@ -1,7 +1,10 @@
 import './App.css';
+import Quiz from './features/quiz/index';
 
 function App() {
-    return <div>Quiz App</div>;
+    return (
+        <Quiz/>
+    );
 }
 
 export default App;
