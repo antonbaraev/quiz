@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import './styles.css';
 
 interface StartProps {
     onStartQuiz: () => void;
