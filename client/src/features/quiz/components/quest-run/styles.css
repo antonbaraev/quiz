@@ -33,28 +33,31 @@
     border: 4px solid lightgray;
     border-radius: 10px;
     flex-basis: calc(50% - 10px);
-    cursor: pointer;
     font-size: 20px;
     font-weight: 700;
+    cursor: pointer;
 }
 
-.question-choice:hover {
-    box-shadow: -1px 0 10px 10px rgba(209,189,189,0.5);
+.question-choice:disabled {
+    cursor: not-allowed;
 }
 
 .question-choice__selected {
     border: 4px solid darkslategray;
+    color: darkslategray;
     background-color: lightgray;
 }
 
 .question-choice__correct {
     border: 4px solid darkgreen;
     background-color: lightgreen;
+    color: darkgreen;
 }
 
 .question-choice__wrong {
     border: 4px solid red;
-    background-color: indianred;
+    background-color: lightcoral;
+    color: darkred;
 }
 
 .question-hint {

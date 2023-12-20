@@ -1,57 +1,44 @@
-import {FC, useEffect, useState} from 'react';
+import {FC} from 'react';
 import {Question} from '../../types';
 import * as getClassNames from 'classnames';
-import Timer from './Timer';
+import {SHOW_HINT_TIME_SEC} from 'src/features/quiz/const';
 
-interface SingleQuestionProps extends Question {
-    onTimeExpired: (isCorrectAnswerChosen: boolean) => void;
+interface SingleQuestionProps extends Omit<Question, 'question_id'> {
+    timeLeft: number;
+    selectedAnswerIndex: number;
+    onSelectAnswer: (answerIndex) => void;
 }
 
 const SingleQuestion: FC<SingleQuestionProps> = ({
-    question_id,
     question,
     answer_index,
     choices,
     hint,
-    onTimeExpired: externalOnTimeExpired,
+    timeLeft,
+    selectedAnswerIndex,
+    onSelectAnswer,
 }) => {
-    const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-    const [isTimeExpired, setIsTimeExpired] = useState(false);
-    const [isHintShown, setIsHintShown] = useState(false);
-
-    useEffect(() => {
-        setSelectedAnswer(null);
-    }, [question_id]);
-
-    const onSelectAnswer = (index: number) => setSelectedAnswer(index);
-
-    const onTimeExpired = () => {
-        setIsTimeExpired(true);
-
-        setTimeout(() => {
-            externalOnTimeExpired(selectedAnswer === answer_index);
-            setIsTimeExpired(false);
-            setIsHintShown(false);
-        }, 1000);
-    };
-
-    const onShowHint = () => setIsHintShown(true);
+    const isTimeExpired = timeLeft === 0;
+    const isHintShown = timeLeft <= SHOW_HINT_TIME_SEC;
 
     return (
         <div className="question-wrapper">
             <div className="question-header">
                 <p>{question}</p>
-                <Timer onTimeExpired={onTimeExpired} onShowHint={onShowHint}/>
+                <p>{timeLeft}</p>
             </div>
             <div className="question-choices">
                 {choices?.map((choice, index) => {
-                    const isSelected = selectedAnswer === index;
+                    const isSelected = selectedAnswerIndex === index;
+                    const isCorrect = isTimeExpired && index === answer_index;
+                    const isWrong = isTimeExpired && isSelected && selectedAnswerIndex !== answer_index;
+
                     const className = getClassNames(
                         'question-choice',
                         {
                             'question-choice__selected': isSelected,
-                            'question-choice__correct': isTimeExpired && index === answer_index,
-                            'question-choice__wrong': isTimeExpired && isSelected && selectedAnswer !== answer_index,
+                            'question-choice__correct': isCorrect,
+                            'question-choice__wrong': isWrong,
                         },
                     );
 
@@ -60,6 +47,7 @@ const SingleQuestion: FC<SingleQuestionProps> = ({
                             key={choice}
                             className={className}
                             onClick={() => onSelectAnswer(index)}
+                            disabled={selectedAnswerIndex >= 0}
                         >
                             {choice}
                         </button>
