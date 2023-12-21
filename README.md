@@ -4,8 +4,6 @@ React + TypeScript + Vite 🌟
 
 ## Run the project
 
-Clone the Repository:
-
 1. Clone the repository
 2. Navigate to "client" folder
 ````
