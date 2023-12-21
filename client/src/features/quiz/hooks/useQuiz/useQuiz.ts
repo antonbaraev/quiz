@@ -1,72 +1,43 @@
-import {ReducerState, useCallback, useEffect, useReducer} from 'react';
-import {DELAY_BEFORE_SHOW_NEXT_QUESTION_MSEC, QUIZ_QUESTION_AMOUNT, QuizView} from 'src/features/quiz/const';
-import {quizActions, QuizActions, QuizActionsType, QuizStore} from 'src/features/quiz/hooks/useQuiz/utils';
-import {useFetchQuestions} from 'src/features/quiz/hooks/useFetchQuestions';
-import {useTimer} from 'src/features/quiz/hooks/useTimer';
-
-const initialState = {
-    view: QuizView.START,
-    currentQuestionIndex: -1,
-    selectedAnswerIndex: -1,
-    correctAnswersCount: 0,
-    totalAnswersTime: {},
-} as ReducerState<QuizStore>;
-
-const reducer = (state: QuizStore, {type, payload} : QuizActionsType) => {
-    switch (type) {
-        case QuizActions.START:
-            return {
-                ...state,
-                view: QuizView.QUIZ,
-                currentQuestionIndex: 0,
-            };
-        case QuizActions.FINISH:
-            return {
-                ...state,
-                view: QuizView.FINISH,
-            };
-        case QuizActions.SELECT_ANSWER:
-            return {
-                ...state,
-                selectedAnswerIndex: payload.answerIndex,
-            };
-        case QuizActions.GO_TO_NEXT_QUESTION:
-            return {
-                ...state,
-                currentQuestionIndex: state.currentQuestionIndex + 1,
-                selectedAnswerIndex: -1,
-            };
-        default:
-            return state;
-    }
-};
+import {useCallback, useEffect, useReducer} from 'react';
+import {DELAY_BEFORE_SHOW_NEXT_QUESTION_MSEC, QUIZ_QUESTION_AMOUNT} from '../../const';
+import {useFetchQuestions} from '../../hooks/useFetchQuestions';
+import {useTimer} from '../../hooks/useTimer';
+import {quizActions} from './actions';
+import {initialState, reducer} from './reducer';
 
 export const useQuiz = () => {
     const { isLoading, questions } = useFetchQuestions();
 
     const [state, dispatch] = useReducer(reducer, initialState);
 
+    const {
+        currentQuestionIndex,
+        selectedAnswerIndex,
+    } = state;
+
+    const currentQuestionId = questions?.[currentQuestionIndex]?.question_id || null;
+
     const onStartQuiz = useCallback(() => dispatch(quizActions.startQuiz()), [dispatch]);
 
     const onGoToNextQuestion = useCallback(() => {
         setTimeout(() => {
-            if (state.currentQuestionIndex === QUIZ_QUESTION_AMOUNT - 1) {
+            if (currentQuestionIndex === QUIZ_QUESTION_AMOUNT - 1) {
                 dispatch(quizActions.endQuiz());
             } else {
                 dispatch(quizActions.goToNextQuestion());
             }
         }, DELAY_BEFORE_SHOW_NEXT_QUESTION_MSEC);
-    }, [dispatch, state.currentQuestionIndex]);
+    }, [dispatch, currentQuestionIndex]);
 
-    const onSelectAnswer = useCallback((answerIndex: number) => {
-        const { selectedAnswerIndex } = state;
-
+    const onSelectAnswer = useCallback((answerIndex: number, timePassed: number) => {
         if (selectedAnswerIndex >= 0) {
             return;
         }
 
-        dispatch(quizActions.selectAnswer(answerIndex));
-    }, [dispatch, state]);
+        const isCorrect = answerIndex === questions?.[currentQuestionIndex]?.answer_index;
+
+        dispatch(quizActions.selectAnswer(answerIndex, isCorrect, timePassed));
+    }, [dispatch, selectedAnswerIndex, questions, currentQuestionIndex]);
 
     const {
         timeLeft,
@@ -75,10 +46,10 @@ export const useQuiz = () => {
     } = useTimer({ onTimeEnds: onGoToNextQuestion });
 
     useEffect(() => {
-        if (state.currentQuestionIndex >= 0 && !isLoading) {
+        if (currentQuestionId) {
             setupTimer();
         }
-    }, [state.currentQuestionIndex, isLoading, setupTimer]);
+    }, [currentQuestionId, setupTimer]);
 
     return {
         isLoading,

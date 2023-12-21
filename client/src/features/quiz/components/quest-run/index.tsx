@@ -6,8 +6,9 @@ import './styles.css';
 
 interface SingleQuestionProps extends Omit<Question, 'question_id'> {
     timeLeft: number;
+    timePassed: number;
     selectedAnswerIndex: number;
-    onSelectAnswer: (answerIndex) => void;
+    onSelectAnswer: (answerIndex: number, timePassed: number) => void;
 }
 
 const QuizQuestion: FC<SingleQuestionProps> = ({
@@ -16,6 +17,7 @@ const QuizQuestion: FC<SingleQuestionProps> = ({
     choices,
     hint,
     timeLeft,
+    timePassed,
     selectedAnswerIndex,
     onSelectAnswer,
 }) => {
@@ -47,7 +49,7 @@ const QuizQuestion: FC<SingleQuestionProps> = ({
                         <button
                             key={choice}
                             className={className}
-                            onClick={() => onSelectAnswer(index)}
+                            onClick={() => onSelectAnswer(index, timePassed)}
                             disabled={selectedAnswerIndex >= 0}
                         >
                             {choice}
