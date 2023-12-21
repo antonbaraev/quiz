@@ -4,7 +4,8 @@ import * as getClassNames from 'classnames';
 import {SHOW_HINT_TIME_SEC} from 'src/features/quiz/const';
 import './styles.css';
 
-interface SingleQuestionProps extends Omit<Question, 'question_id'> {
+interface SingleQuestionProps {
+    question: Question;
     timeLeft: number;
     timePassed: number;
     selectedAnswerIndex: number;
@@ -12,15 +13,18 @@ interface SingleQuestionProps extends Omit<Question, 'question_id'> {
 }
 
 const QuizQuestion: FC<SingleQuestionProps> = ({
-    question,
-    answer_index,
-    choices,
-    hint,
+    question: questionObject,
     timeLeft,
     timePassed,
     selectedAnswerIndex,
     onSelectAnswer,
 }) => {
+    const {
+        question,
+        answer_index,
+        choices,
+        hint,
+    } = questionObject;
     const isTimeExpired = timeLeft === 0;
     const isHintShown = timeLeft <= SHOW_HINT_TIME_SEC;
 
