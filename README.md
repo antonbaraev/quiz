@@ -1,8 +1,8 @@
 
-#Quiz App 🚀
+# Quiz App 🚀
 React + TypeScript + Vite 🌟
 
-##Run the project
+## Run the project
 
 Clone the Repository:
 
@@ -15,11 +15,11 @@ cd client
 ````
 npm install && npm start
 ````
-##Quest rules
+## Quest rules
 
-###1. Hit the Start Button.
+### 1. Hit the Start Button.
 
-###2. Answer 5 Questions:
+### 2. Answer 5 Questions:
 
 You'll be presented with 5 questions.
 
@@ -32,5 +32,5 @@ After 10 seconds, a hint will be graciously revealed to guide you.
 Revelation Time:
 Once the timer expires, the answer to the question will be unveiled.
 
-###3. Score Tally:
+### 3. Score Tally:
 At the culmination of the quest, behold your score and the total time spent contemplating the mysteries 🚀✨
