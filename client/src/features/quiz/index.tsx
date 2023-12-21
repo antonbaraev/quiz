@@ -29,8 +29,8 @@ const Quiz: FC = () => {
                     [QuizView.QUIZ]: (
                         <Loadable {...{ isLoading}}>
                             <QuizQuestion
-                                {...currentQuestion}
                                 {...{
+                                    question: currentQuestion,
                                     onSelectAnswer,
                                     timeLeft,
                                     timePassed,

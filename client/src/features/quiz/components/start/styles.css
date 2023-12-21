@@ -13,3 +13,11 @@
 .start-btn:hover {
     box-shadow: -1px 0 10px 10px rgba(209,189,189,0.5);
 }
+
+@media screen and (max-width: 600px) {
+    .start-btn {
+        width: 150px;
+        height: 150px;
+        font-size: 25px;
+    }
+}
