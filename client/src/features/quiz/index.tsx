@@ -18,6 +18,7 @@ const Quiz: FC = () => {
         onSelectAnswer,
         timeLeft,
         timePassed,
+        totalAnswersTime,
     } = useQuiz();
 
     return (
@@ -36,7 +37,7 @@ const Quiz: FC = () => {
                                     selectedAnswerIndex,
                                 }}/>
                         </Loadable>),
-                    [QuizView.FINISH]: <Finish {...{answersTime: 0, correctAnswersCount}}/>,
+                    [QuizView.FINISH]: <Finish {...{totalAnswersTime, correctAnswersCount}}/>,
                 }[view]
             }
         </div>

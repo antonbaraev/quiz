@@ -4,9 +4,9 @@ export enum QuizView {
     FINISH = 'FINISH',
 }
 
-export const QUIZ_QUESTION_AMOUNT = 5;
+export const QUIZ_QUESTION_AMOUNT = 2;
 
-export const TIME_PER_QUESTION_SEC = 20;
+export const TIME_PER_QUESTION_SEC = 5;
 
 export const SHOW_HINT_TIME_SEC = 10;
 
