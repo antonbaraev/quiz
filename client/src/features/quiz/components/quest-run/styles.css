@@ -65,3 +65,29 @@
     border-radius: 10px;
     color: darkgray;
 }
+
+@media screen and (max-width: 600px) {
+    .question-header {
+        padding: 10px;
+        border: 2px solid blueviolet;
+        font-size: 18px;
+    }
+
+    .question-choices {
+        gap: 15px;
+        flex-direction: row;
+    }
+
+    .question-choice {
+        padding: 10px;
+        border: 2px solid lightgray;
+        border-radius: 10px;
+        flex-basis: 100%;
+        font-size: 14px;
+    }
+
+    .question-hint {
+        margin-top: 5px;
+        font-size: 12px;
+    }
+}
