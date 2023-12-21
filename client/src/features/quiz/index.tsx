@@ -1,27 +1,43 @@
-import {FC, useState} from 'react';
+import {FC} from 'react';
 import './styles.css';
 import {QuizView} from './const';
 import Start from './components/start';
-import QuestionRun from './components/quest-run';
+import QuizQuestion from './components/quest-run';
 import Finish from './components/finish';
+import {useQuiz} from 'src/features/quiz/hooks/useQuiz/useQuiz';
+import Loadable from 'src/shared-components/loadable';
 
 const Quiz: FC = () => {
-    const [quizState, setQuizState] = useState<QuizView>(QuizView.START);
-    const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
-    const [answersTime, setAnswersTime] = useState(0);
-
-    const onStartQuiz = () => setQuizState(QuizView.QUIZ);
-    const onFinishQuiz = () => setQuizState(QuizView.FINISH);
-    const incrementCorrectAnswersCount = () => setCorrectAnswersCount((prevCount) => prevCount + 1);
+    const {
+        view,
+        isLoading,
+        currentQuestion,
+        selectedAnswerIndex,
+        correctAnswersCount,
+        onStartQuiz,
+        onSelectAnswer,
+        timeLeft,
+        timePassed,
+    } = useQuiz();
 
     return (
         <div className="wrapper">
             {
                 {
                     [QuizView.START]: <Start {...{onStartQuiz}}/>,
-                    [QuizView.QUIZ]: <QuestionRun {...{onFinishQuiz, incrementCorrectAnswersCount, setAnswersTime}}/>,
-                    [QuizView.FINISH]: <Finish {...{answersTime, correctAnswersCount}}/>,
-                }[quizState]
+                    [QuizView.QUIZ]: (
+                        <Loadable {...{ isLoading}}>
+                            <QuizQuestion
+                                {...currentQuestion}
+                                {...{
+                                    onSelectAnswer,
+                                    timeLeft,
+                                    timePassed,
+                                    selectedAnswerIndex,
+                                }}/>
+                        </Loadable>),
+                    [QuizView.FINISH]: <Finish {...{answersTime: 0, correctAnswersCount}}/>,
+                }[view]
             }
         </div>
     );

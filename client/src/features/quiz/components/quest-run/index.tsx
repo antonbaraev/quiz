@@ -1,87 +1,63 @@
-import {FC, useEffect, useState} from 'react';
-import Loadable from 'src/shared-components/loadable';
+import {FC} from 'react';
+import {Question} from '../../types';
+import * as getClassNames from 'classnames';
+import {SHOW_HINT_TIME_SEC} from 'src/features/quiz/const';
 import './styles.css';
-import SingleQuestion from './SingleQuestion';
-import {DELAY_BEFORE_SHOW_NEXT_QUESTION_MSEC, QUIZ_QUESTION_AMOUNT} from 'src/features/quiz/const';
-import {useFetchQuestions} from 'src/features/quiz/hooks/useFetchQuestions';
-import {useTimer} from 'src/features/quiz/hooks/useTimer';
-import {Question} from 'src/features/quiz/types';
-import {useTrackActionDuration} from 'src/features/quiz/hooks/useTrackActionDuration';
 
-interface QuestionRunProps {
-    onFinishQuiz: () => void;
-    incrementCorrectAnswersCount: () => void;
-    setAnswersTime: (value: (((prevState: number) => number) | number)) => void;
+interface SingleQuestionProps extends Omit<Question, 'question_id'> {
+    timeLeft: number;
+    selectedAnswerIndex: number;
+    onSelectAnswer: (answerIndex) => void;
 }
 
-const QuestionRun: FC<QuestionRunProps> = ({ onFinishQuiz, incrementCorrectAnswersCount, setAnswersTime }) => {
-    const { questions, isLoading } = useFetchQuestions();
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(-1);
-    const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number>(-1);
-
-    const { question_id, ...questionParams} = questions?.[currentQuestionIndex] || {} as Question;
-
-    const { timeLeft, setupTimer } = useTimer();
-    const { actionDuration, trackActionStart, trackActionEnd } = useTrackActionDuration();
-
-    useEffect(() => {
-        if (!isLoading && questions.length > 0) {
-            setCurrentQuestionIndex(0);
-        }
-    }, [isLoading, questions]);
-
-    useEffect(() => {
-        if (currentQuestionIndex >= 0) {
-            setupTimer();
-            trackActionStart();
-        }
-    }, [currentQuestionIndex, setupTimer]);
-
-    useEffect(() => {
-        if (timeLeft > 0) {
-            return;
-        }
-
-        setTimeout(() => {
-            if (actionDuration) {
-                setAnswersTime((prevTime) => prevTime + actionDuration!);
-            }
-
-            if (selectedAnswerIndex === questionParams?.answer_index) {
-                incrementCorrectAnswersCount();
-            }
-
-            if (currentQuestionIndex === QUIZ_QUESTION_AMOUNT - 1) {
-                onFinishQuiz();
-            } else {
-                setCurrentQuestionIndex(currentQuestionIndex + 1);
-                setSelectedAnswerIndex(-1);
-            }
-        }, DELAY_BEFORE_SHOW_NEXT_QUESTION_MSEC);
-    }, [timeLeft]);
-
-    const onSelectAnswer = (answerIndex: number) => {
-        if (selectedAnswerIndex >= 0) {
-            return;
-        }
-
-        setSelectedAnswerIndex(answerIndex);
-        trackActionEnd();
-    };
+const QuizQuestion: FC<SingleQuestionProps> = ({
+    question,
+    answer_index,
+    choices,
+    hint,
+    timeLeft,
+    selectedAnswerIndex,
+    onSelectAnswer,
+}) => {
+    const isTimeExpired = timeLeft === 0;
+    const isHintShown = timeLeft <= SHOW_HINT_TIME_SEC;
 
     return (
-        <Loadable isLoading={isLoading}>
-            {questionParams &&
-                <SingleQuestion
-                    key={question_id}
-                    {...questionParams}
-                    timeLeft={timeLeft}
-                    selectedAnswerIndex={selectedAnswerIndex}
-                    onSelectAnswer={onSelectAnswer}
-                />
-            }
-        </Loadable>
+        <div className="question-wrapper">
+            <div className="question-header">
+                <p>{question}</p>
+                <p>{timeLeft}</p>
+            </div>
+            <div className="question-choices">
+                {choices?.map((choice, index) => {
+                    const isSelected = selectedAnswerIndex === index;
+                    const isCorrect = isTimeExpired && index === answer_index;
+                    const isWrong = isTimeExpired && isSelected && selectedAnswerIndex !== answer_index;
+
+                    const className = getClassNames(
+                        'question-choice',
+                        {
+                            'question-choice__selected': isSelected,
+                            'question-choice__correct': isCorrect,
+                            'question-choice__wrong': isWrong,
+                        },
+                    );
+
+                    return (
+                        <button
+                            key={choice}
+                            className={className}
+                            onClick={() => onSelectAnswer(index)}
+                            disabled={selectedAnswerIndex >= 0}
+                        >
+                            {choice}
+                        </button>
+                    );
+                })}
+            </div>
+            {isHintShown && <div className="question-hint">{hint}</div>}
+        </div>
     );
 };
 
-export default QuestionRun;
+export default QuizQuestion;
